@@ -1,28 +1,53 @@
-package The_First_week.JDBC_Utils;
+package The_First_week.HandWriting_JDBC;
 
-import The_First_week.JDBC_Utils.JDBC;
-
-import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Scanner;
 
 public class test {
-    public static void main(String[] args) {
-        JDBC jdbc = null;
+    public static void main(String[] args)  {
+        Connection connection =null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         try {
-            jdbc = new JDBC();
-            String sql = null;
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("请输入sql语句:");
-            sql = scanner.nextLine();
-            jdbc.InputSql(sql);
-            jdbc.close();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            MaintenanceConnection.Initialize();//初始化
+            connection = MaintenanceConnection.Getconnection();//获取连接
+            ps = connection.prepareStatement("select * from emp");//查询数据库数据
+            rs = ps.executeQuery();//执行sql语句
+            //判断是否查询到
+            while(rs.next())
+            {
+                String empno = rs.getString("empno");//获取查询结果根据列名
+                String ename = rs.getString("ename");
+                String sal = rs.getString("sal");
+                System.out.println(empno + "\t" + ename + "\t" + sal );
+            }
+            MaintenanceConnection.shutdown();//关闭连接
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
 
     }
